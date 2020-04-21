@@ -14,6 +14,7 @@ class ViewController: UIViewController {
     var currentAnswer: UITextField!
     var scoreLabel: UILabel!
     var letterButtons = [UIButton]()
+    var rightAnswers = 0
     
     var activatedButtons = [UIButton]()
     var solutions = [String]()
@@ -137,7 +138,9 @@ class ViewController: UIViewController {
         guard let buttonTitle = sender.titleLabel?.text else { return }
         currentAnswer.text = currentAnswer.text?.appending(buttonTitle)
         activatedButtons.append(sender)
-        sender.isHidden = true
+        UIView.animate(withDuration: 0.5, delay: 0, options: [], animations: {
+            sender.alpha = 0
+        })
     }
     
     @objc func submitTapped(_ sender: UIButton) {
@@ -145,14 +148,14 @@ class ViewController: UIViewController {
         if let solutionPosition = solutions.firstIndex(of: answerText) {
             activatedButtons.removeAll()
             var splitAnswers = answerLabel.text?.components(separatedBy: "\n")
-            solutions.remove(at: solutionPosition)
             splitAnswers?[solutionPosition] = answerText
             answerLabel.text = splitAnswers?.joined(separator: "\n")
             
             currentAnswer.text = ""
             score += 1
+            rightAnswers += 1
             
-            if solutions.isEmpty {
+            if rightAnswers % 7 == 0 {
                 let ac = UIAlertController(title: "Well done!", message: "Are you ready for the next level?", preferredStyle: .alert)
                 ac.addAction(UIAlertAction(title: "Let's go!", style: .default, handler: levelUp))
                 present(ac, animated: true)
@@ -173,14 +176,14 @@ class ViewController: UIViewController {
         solutions.removeAll(keepingCapacity: true)
         loadLevel()
         for button in letterButtons {
-            button.isHidden = false
+            button.alpha = 1
         }
     }
     
     @objc func clearTapped() {
         currentAnswer.text = ""
         for button in activatedButtons {
-            button.isHidden = false
+            button.alpha = 1
         }
         activatedButtons.removeAll()
     }
